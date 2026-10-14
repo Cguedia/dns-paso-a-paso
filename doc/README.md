@@ -63,7 +63,7 @@ El archivo `.gitignore` contiene:
 
 ### Captura 1. Repositorio de GitHub
 
-![Repositorio de GitHub](images/0.png)
+![Repositorio de GitHub](../doc/images/0.png)
 
 *Se muestra el repositorio y su estructura de archivos.*
 
