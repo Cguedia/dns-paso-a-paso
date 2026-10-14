@@ -199,7 +199,7 @@ Se utiliza un script llamado `test-dns.sh`, situado en la raíz del repositorio,
 
 El script debe verificar la sintaxis de BIND9, las zonas y las resoluciones DNS.
 
-![Instalación de BIND9](images/3.amplificacion.png)
+![Instalación de BIND9](images/3am.png)
 Se ejecuta mediante:
 
 ```bash
