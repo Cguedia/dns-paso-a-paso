@@ -1,71 +1,75 @@
-# Documentacion de la practica DNS 
-En este documento se registraran los pasos de configuracion del servidor DNS y las capturas de pantalla de las pruebas realizadas. 
-
-
 # Práctica: Configuración de un servidor DNS con BIND9
 
-**Autor:** Cristóbal  
-**Proyecto:** dns-paso-a-paso  
+En este documento se registran los pasos de configuración del servidor DNS y las capturas de pantalla de las pruebas realizadas.
 
+**Autor:** Cristóbal  
+**Proyecto:** dns-paso-a-paso
 
 ## 1. Objetivo
 
-El objetivo de esta práctica es instalar, configurar y comprobar un servidor DNS autoritativo utilizando BIND9 en una máquina virtual Debian.
+Instalar, configurar y validar un servidor DNS autoritativo con BIND9 en una máquina virtual Debian, incluyendo resolución directa e inversa.
 
+## 2. Requisitos
 
-## 2. Control de versiones con Git y GitHub
+- Vagrant y un proveedor de virtualización compatible (por ejemplo, VirtualBox).
+- Acceso a una máquina Debian desplegada con Vagrant.
+- Paquetes DNS: `bind9`, `bind9utils`, `bind9-doc` y `dnsutils`.
 
-Se ha creado un repositorio privado en GitHub con el nombre `dns-paso-a-paso`.
+## 3. Repositorio y control de versiones
+
+El repositorio utilizado es `dns-paso-a-paso` en GitHub.
 
 ### Captura 1. Repositorio de GitHub
 
-![Repositorio de GitHub](../doc/images/0.png)
+![Repositorio de GitHub](images/0.png)
 
 *Se muestra el repositorio y su estructura de archivos.*
 
+![Repositorio de GitHub](images/1.png)
 
-![Repositorio de GitHub](../doc/images/1.png)
+## 4. Infraestructura con Vagrant
 
+Se utiliza Vagrant para desplegar una máquina virtual Debian donde se instala y configura el servidor DNS.
 
+La máquina dispone de una interfaz de red privada en `192.168.56.10/24`.
 
-## 3. Infraestructura como código con Vagrant
-
-Se utiliza Vagrant para desplegar una máquina virtual Debian en la que se instala y configura el servidor DNS.
-
-La máquina dispone de una interfaz de red privada con una dirección IP de la red `192.168.56.10/24` en mi caso.
-
-
-
-### Comandos de despliegue
+### 4.1. Comandos de despliegue
 
 ```bash
 vagrant up
 vagrant ssh
 ```
 
+- `vagrant up`: crea e inicia la máquina virtual.
+- `vagrant ssh`: abre una sesión SSH dentro de la máquina.
+
 ```bash
 vagrant status
 ```
 
+- `vagrant status`: muestra el estado actual de la máquina virtual.
 
-## 4. Instalación del servidor DNS
+## 5. Instalación de BIND9
 
-Antes de realizar las pruebas, se comprueba que el cliente no tenga entradas locales que falseen la resolución DNS en el archivo `hosts`.
+Antes de las pruebas, conviene verificar que no existan entradas en `hosts` que falseen la resolución DNS.
 
-En Debian, se revisa `/etc/hosts`. En Windows, se revisa `C:\Windows\System32\drivers\etc\hosts`.
+- En Debian: `/etc/hosts`
+- En Windows: `C:\Windows\System32\drivers\etc\hosts`
 
-Se instalan los paquetes necesarios:
+Instalación de paquetes:
 
 ```bash
 sudo apt update
 sudo apt install bind9 bind9utils bind9-doc dnsutils
 ```
 
-Se comprueba el estado del servicio:
+Comprobación inicial del servicio:
 
 ```bash
 sudo systemctl status bind9
 ```
+
+Resultado esperado: servicio `bind9` activo (o al menos instalado correctamente y listo para iniciarse).
 
 ### Captura 4. Instalación de BIND9
 
@@ -73,29 +77,35 @@ sudo systemctl status bind9
 
 *Se muestra la instalación de los paquetes y el estado del servicio.*
 
-
 ![Instalación de BIND9](images/6.png)
 
+## 6. Configuración general de BIND9
 
+### 6.1. Forzar funcionamiento en IPv4 (`/etc/default/named`)
 
-### 5.1. Configuración de IPv4
+Se modifica `/etc/default/named` para indicar que BIND9 trabaje con IPv4 (opción `-4`).
 
-Se modifica el archivo `/etc/default/named` para indicar que BIND9 debe trabajar con IPv4.
-Se hace un backup  `/etc/default/named.backup`
+Antes de editar, se crea copia de seguridad:
 
+```bash
+sudo cp /etc/default/named /etc/default/named.backup
+```
 
-![Instalación de BIND9](images/7.png)
+![Configuración IPv4 en named](images/7.png)
 
+![Configuración IPv4 en named](images/8.png)
 
-![Instalación de BIND9](images/8.png)
+### 6.2. Archivo principal `named.conf` (`/etc/bind/named.conf`)
 
+El archivo principal incluye los ficheros de configuración de opciones, zonas locales y zonas por defecto.
 
-### 5.2. Archivo principal named.conf
+Antes de editar, se crea copia de seguridad correcta del archivo principal:
 
-El archivo `/etc/bind/named.conf` incluye los archivos principales de configuración:
-Se hace un backup  `/etc/default/named.conf.backup`
+```bash
+sudo cp /etc/bind/named.conf /etc/bind/named.conf.backup
+```
 
-![Instalación de BIND9](images/10.png)
+![Archivo principal named.conf](images/10.png)
 
 ```conf
 include "/etc/bind/named.conf.options";
@@ -103,121 +113,126 @@ include "/etc/bind/named.conf.local";
 include "/etc/bind/named.conf.default-zones";
 ```
 
-![Instalación de BIND9](images/9.png)
+![Archivo principal named.conf](images/9.png)
 
+### 6.3. Opciones globales (`/etc/bind/named.conf.options`)
 
-### 5.3. Configuración de named.conf.options
-
-Antes de modificar el archivo se crea una copia de seguridad:
+Antes de modificar el archivo, se crea copia de seguridad:
 
 ```bash
 sudo cp /etc/bind/named.conf.options \
   /etc/bind/named.conf.options.backup
 ```
 
-![Instalación de BIND9](images/12.png)
+![Opciones globales de BIND9](images/12.png)
 
+## 7. Configuración de la zona directa
 
+En `/etc/bind/named.conf.local` se declara la zona directa principal.
 
-## 6. Configuración de la zona directa
-
-En `/etc/bind/named.conf.local` se declara la zona:
-
-![Instalación de BIND9](images/14.png)
-
+![Configuración de zona directa](images/14.png)
 
 *Se muestra el archivo de zona directa y sus registros DNS.*
 
+## 8. Configuración de la zona inversa
 
+La zona inversa permite obtener el nombre de dominio a partir de una dirección IPv4.
 
-## 7. Configuración de la zona inversa
-
-La zona inversa permite obtener el nombre asociado a una dirección IPv4.
-
-Para la red `192.168.56.10/24`, se declara la zona:
+Para la red `192.168.56.0/24`, se declara:
 
 ```conf
 zone "56.168.192.in-addr.arpa" {
     type master;
-    file "/var/lib/bind/cristobal.test.rev";
+    file "/etc/bind/cristobal.test.rev";
 };
 ```
-![Instalación de BIND9](images/17.png)
 
-El archivo `/var/lib/bind/cristobal.test.rev` contiene los registros de resolución inversa.
+![Configuración de zona inversa](images/17.png)
 
-![Instalación de BIND9](images/18.png)
+El archivo de zona inversa contiene los registros PTR asociados.
 
+![Registros de zona inversa](images/18.png)
 
+## 9. Validación de configuración
 
-## 8. Comprobación de la configuración
-
-Se comprueba la sintaxis general de BIND9:
-
+Comprobación de sintaxis global:
 
 ```bash
 sudo named-checkconf
 ```
 
+Comprobación de zonas (ejemplo habitual):
 
-Si las comprobaciones son correctas, las herramientas deben indicar que las zonas se han cargado correctamente y devolver `OK` para cada zona.
+```bash
+sudo named-checkzone cristobal.test /etc/bind/db.cristobal.test
+sudo named-checkzone 56.168.192.in-addr.arpa /etc/bind/cristobal.test.rev
+```
 
-Se reinicia el servicio:
+Resultado esperado: comprobaciones correctas, sin errores de sintaxis ni de carga de zonas.
+
+Reinicio y verificación del servicio:
 
 ```bash
 sudo systemctl restart bind9
 sudo systemctl status bind9
 ```
 
+Resultado esperado: servicio `bind9` activo después del reinicio.
+
 ### Captura 8. Validación de las zonas
 
-## 9. Pruebas de resolución DNS
+## 10. Pruebas de resolución DNS
 
-Se realizan las consultas directamente al servidor DNS mediante `dig` y `nslookup`.
+Se realizan consultas directas e inversas contra el servidor DNS con `dig` y `nslookup`.
 
-![Instalación de BIND9](images/20.png)
+![Pruebas de resolución DNS](images/20.png)
 
-*Se muestran las consultas directas e inversas realizadas al servidor.*
+*Se muestran consultas de resolución directa e inversa realizadas al servidor.*
 
+## 11. Tareas de ampliación
 
+### 11.1. Registro CNAME y TXT
 
+Se añade un alias `web` (CNAME) que apunta al nombre canónico del servidor, y un registro TXT para validación adicional.
 
-## 10. Tareas de ampliación
+![Ampliación con CNAME/TXT](images/1-anplificacion.png)
 
+## 12. Script de autocomprobación
 
-### 10.1. Registro CNAME y TXT
+Se utiliza el script `config/test-dns.sh` para automatizar consultas DNS de validación.
 
-Se añade un alias `web` que apunta al nombre canónico del servidor.
+El script ejecuta pruebas de:
 
-![Instalación de BIND9](images/1-anplificacion.png)
+- Resolución directa (`A`).
+- Resolución inversa (`PTR`).
+- Alias (`CNAME`).
+- Registro de texto (`TXT`).
 
-
-
-## 11. Script de autocomprobación
-
-Se utiliza un script llamado `test-dns.sh`, situado en la raíz del repositorio, para automatizar las comprobaciones principales.
-
-El script debe verificar la sintaxis de BIND9, las zonas y las resoluciones DNS.
-
-![Instalación de BIND9](images/3am.png)
-Se ejecuta mediante:
+Ejecución del script:
 
 ```bash
-chmod +x test-dns.sh
-sudo ./test-dns.sh
+chmod +x config/test-dns.sh
+sudo ./config/test-dns.sh
 ```
 
-Las comprobaciones deben devolver resultados satisfactorios para considerar correcto el despliegue.
+Resultado esperado: obtención de respuestas DNS para cada bloque de prueba (`DNS directo`, `DNS inverso`, `CNAME` y `TXT`) sin errores de ejecución.
 
-
+![Script de autocomprobación](images/3am.png)
 
 ### Captura 14. Ejecución del script de pruebas
 
-![Instalación de BIND9](images/Amplificacion4.png)
+![Ejecución del script de pruebas](images/Amplificacion4.png)
 
-*Se muestra la ejecución de test-dns.sh y los resultados obtenidos.*
+*Se muestra la ejecución de `test-dns.sh` y los resultados obtenidos.*
 
+## 13. Resultado y conclusiones
 
+Al finalizar la práctica, debe quedar funcionando:
 
+- Un servidor BIND9 operativo en la máquina Debian.
+- La resolución directa para la zona configurada (`cristobal.test`).
+- La resolución inversa para la red `192.168.56.0/24`.
+- Las ampliaciones de pruebas (`CNAME` y `TXT`).
+- Un flujo de verificación reproducible mediante `named-checkconf`, `named-checkzone`, `dig`, `nslookup` y `config/test-dns.sh`.
 
-
+Con ello, la infraestructura DNS queda documentada y validada con evidencias de ejecución (capturas incluidas en este documento).
