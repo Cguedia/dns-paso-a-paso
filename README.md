@@ -1,2 +1,3 @@
-"# dns-paso-a-paso" 
-"# dns-paso-a-paso" 
+# Configuración de un servidor DNS paso a paso
+
+Autor: Cristóbal Guerrero Díaz
