@@ -1,0 +1,13 @@
+;
+; 56.168.192
+;
+$TTL	604800
+@	IN	SOA	debian.cristobal.test. admin.cristobal.test (
+			      1		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+@	IN	NS	debian.cristobal.test.
+10	IN	PTR	debian.cristobal.test.
